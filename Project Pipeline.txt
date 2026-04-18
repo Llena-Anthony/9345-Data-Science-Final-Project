@@ -1,0 +1,86 @@
+Project Pipeline 
+
+Evaluating machine learning performance on highly imbalanced mineral data, and accessing whether synthetic data helps improve classification on real measured samples.
+
+Phase 1: Data Definition
+1. Dataset scope
+- Real data: MineralTDMeasurePre-processed.csv
+- Synthetic data: all MineralTDSyntheticPart*.csv
+2. Task Definition
+- Type: Multi-class classification
+- Target: Mineral class
+- Features: Numeric mineral properties (e.g. SiO₂, Al₂O₃, etc.)
+
+Phase 2: Controlled Data Preparation
+3. Class Filtering (Controlled Imbalance Handling)
+- Compute class counts on measured dataset
+- We define the main threshold to be 20; sensitivity 10 and 50
+- Then we remove classes below threshold only on measured dataset
+- this phase shows controlled experimental variable
+
+4. Train-Test Split
+Apply only on measured data:
+- Stratified split if feasible
+- 80% train / 20% test
+- we define the d_real_train and d_real_test; d_real_test is never touched again.
+
+5. Synthetic Data Preparation
+- Merge all synthetic parts - D_synth
+- Clean to math: same features and same label encoding
+
+Phase 3 (experiment design):
+Experiment 1 - Real baseline
+- We train D_real_train and then test D_real_test
+- the purpose is to establish true real-world performance
+
+Experiment 2 - Syntethic -> real (generalization test)
+- Train D_synth and test D_real_test
+- Establish only on class intersection
+- Purpose is to measure domain transfer gap
+
+Experiment 3: Hybrid Model
+- Train D_real_train + D_synth
+- To test the augmentation benefit
+
+Phase 4: Modelling 
+Models:
+- Naive Bayyes
+- KNN
+- Decision Tree
+- Random Forest
+
+Phase 5: Evaluation 
+1. For each experiment, model, and threshold,
+2. report the core metrics of accuracy, macro f1, weighted f1, precision/recall
+3. diagnostics are on confusion matrix to follow
+// raised by Nathaniel, we filter preditions + labels to common classes only
+// but also report the total classes and evaluated classes as this adhere to transparency
+
+Phase 6: Feature Analysis
+- Using Random forest as primary
+- ooutputs of top features
+- then interpret the model behavior
+
+Phase 7: Error Analysis
+- Analyze the low-support class failures
+- Common misclassification
+- Synthetyic vs real mismatch patterns
+
+Phase 8: sensitivity analysis
+repeat the full pipline for
+Threshold = 10
+Threshold = 20 (main)
+Threshold = 50
+
+Compare:
+- The classes retained
+- Macro F1 Changes
+- Stability vs coverage tradeoff
+
+Hard Constraints 
+Never do the following:
+1. Train and test on same measured data
+2. Add synthetic data into test set
+3. oversample test set
+4. report metrics for classes with support = 0
+5. mix dataset before splitting

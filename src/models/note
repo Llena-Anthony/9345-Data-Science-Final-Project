@@ -1,0 +1,37 @@
+"""
+Directory: src/models/
+
+Purpose:
+This directory contains model definitions used in the project. Each file provides
+a function that constructs and returns a machine learning model with predefined
+hyperparameters.
+
+Note:
+Although machine learning models can be directly instantiated from libraries
+(e.g., scikit-learn), this project uses wrapper functions (e.g., build_random_forest,
+build_naive_bayes) to standardize model creation.
+
+This design separates model definition from experiment execution.
+
+Rationale:
+1. Reusability:
+   The same model configuration can be used across multiple experiments
+   (e.g., real-only, synthetic-to-real, hybrid) without rewriting code.
+
+2. Consistency:
+   All experiments use identical model settings, ensuring fair comparison
+   between models and experimental setups.
+
+3. Maintainability:
+   Changes to model hyperparameters only need to be made in one place,
+   instead of updating multiple scripts.
+
+4. Clean Architecture:
+   - src/models/ → defines "how to build the model"
+   - src/experiments/ → defines "how the model is used"
+
+Summary:
+This directory acts as a centralized repository of model blueprints,
+while training, evaluation, and dataset handling are performed in the
+experiment scripts.
+"""

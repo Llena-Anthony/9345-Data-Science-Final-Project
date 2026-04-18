@@ -1,0 +1,13 @@
+Why Naive Bayes, K-nearest neigbors, decision tree, random forest
+
+In this phase, multiple machine learning algorithms were selected to classify mineral data based on their properties. The chosen models include Naive Bayes, K-Nearest Neighbors (KNN), Decision Tree, and Random Forest. These models were selected due to their complementary strengths in handling structured/tabular datasets and their widespread use in classification problems.
+
+Naive Bayes is a probabilistic classifier based on Bayes’ Theorem and assumes independence among features. Despite its simplicity, it performs well in high-dimensional datasets and serves as a strong baseline model (Rish, 2001; Zhang, 2004).
+
+K-Nearest Neighbors (KNN) is an instance-based learning algorithm that classifies data points based on the majority class of their nearest neighbors. It is effective in capturing non-linear relationships and similarity patterns within the dataset (Cover & Hart, 1967).
+
+Decision Tree is a rule-based model that splits data into branches based on feature values. It is highly interpretable and helps identify the most influential features in classification tasks (Quinlan, 1986). However, it may suffer from overfitting when used alone.
+
+Random Forest is an ensemble learning method that combines multiple decision trees to improve prediction accuracy and reduce overfitting. It is particularly effective for structured data and is known for its robustness and high performance (Breiman, 2001).
+
+The use of these four models enables a comprehensive comparison across different learning paradigms, including probabilistic, instance-based, rule-based, and ensemble methods. This approach aligns with the principle that no single algorithm is universally optimal for all problems, as stated in the No Free Lunch Theorem (Wolpert, 1996). Therefore, evaluating multiple models ensures a more reliable and objective assessment of performance.

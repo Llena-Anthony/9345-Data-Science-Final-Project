@@ -15,6 +15,7 @@ Thumbs.db
 
 # Data (optional - if large)
 data/raw/
+data/processed/synthetic_preprocessed.csv
 
 # Logs & outputs
 *.log
