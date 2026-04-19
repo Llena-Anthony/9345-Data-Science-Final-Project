@@ -34,12 +34,13 @@ Note:
 - This script prepares synthetic data for training purposes.
 - It does not perform class filtering, imbalance handling, or data splitting.
 """
+
 import pandas as pd
 import numpy as np
 import glob
 import os
 from pathlib import Path
-from sklearn.preprocessing import LabelEncoder
+# from sklearn.preprocessing import LabelEncoder
 from tqdm import tqdm
 
 # =========================
@@ -48,6 +49,16 @@ from tqdm import tqdm
 PROJECT_ROOT = Path(__file__).resolve().parents[2]
 SYNTHETIC_PATTERN = str(PROJECT_ROOT / "data" / "raw" / "MineralTDSyntheticPart*.csv")
 OUTPUT_FILE = PROJECT_ROOT / "data" / "processed" / "synthetic_preprocessed.csv"
+
+MEASURED_FILE = PROJECT_ROOT / "data" / "processed" / "measured_preprocessed.csv"
+# Reference to measured data
+
+# =========================
+# Load measured schema
+# =========================
+measured_df = pd.read_csv(MEASURED_FILE)
+measured_columns = measured_df.columns.to_list()
+print(f"Measured columns: {len(measured_columns)}")
 
 # =========================
 # 1. Load and combine synthetic files
@@ -69,7 +80,7 @@ print("\nLoading files...")
 dataframes = []
 
 for file in tqdm(files, desc="Reading CSV files", unit="file"):
-    temp_df = pd.read_csv(file, encoding="ISO-8859-1")
+    temp_df = pd.read_csv(file, encoding="cp1252")
     dataframes.append(temp_df)
 
 df = pd.concat(dataframes, ignore_index=True)
@@ -133,21 +144,45 @@ print("✔ Standardized mineral_name values")
 print(f"  Missing mineral_name entries before standardization: {missing_names_before}")
 
 # =========================
+# 5. Align synthetic to measured schema
+# =========================
+print("\n[5/7] Aligning columns with measured dataset...")
+
+# Add missing columns from measured
+for col in measured_columns:
+    if col not in df.columns:
+        df[col] = 0
+
+# Remove extra columns not found in measured dataset
+df = df[[col for col in df.columns if col in measured_columns]]
+
+# Reorder columns to match measured exactly
+df = df.reindex(columns=measured_columns, fill_value=0)
+
+print("✔ Column alignment complete")
+print(f"Final column count: {df.shape[1]}")
+
+# Refresh feature columns after alignment
+feature_cols = [col for col in df.columns if col != "mineral_name"]
+
+# =========================
 # 5. Label encoding
 # =========================
-print("\n[5/7] Encoding class labels...")
-
-le = LabelEncoder()
-df["label"] = le.fit_transform(df["mineral_name"])
-
-num_classes = df["mineral_name"].nunique()
-print(f"✔ Encoded {num_classes} mineral class(es)")
-
-example_mapping = {cls: int(i) for i, cls in enumerate(le.classes_[:5])}
-print(f"  Example mapping: {example_mapping} ...")
+# print("\n[5/7] Encoding class labels...")
+#
+# le = LabelEncoder()
+# df["label"] = le.fit_transform(df["mineral_name"])
+# This is the biggest source of inconsistency between
+# the measured and synthetic datasets when encoded separately.
+#
+# num_classes = df["mineral_name"].nunique()
+# print(f"✔ Encoded {num_classes} mineral class(es)}")
+#
+# example_mapping = {cls: int(i) for i, cls in enumerate(le.classes_[:5])}
+# print(f"Example mapping: {example_mapping} ...")
 
 # =========================
-# 6. Save processed dataset
+# 6. Save
 # =========================
 print("\n[6/7] Saving processed dataset...")
 
@@ -168,7 +203,8 @@ print(f"Total rows:        {len(df)}")
 print(f"Total columns:     {df.shape[1]}")
 print(f"Total classes:     {df['mineral_name'].nunique()}")
 print(f"Remaining NaNs:    {remaining_nan}")
-print(f"Unique labels:     {df['label'].nunique()}")
+# print(f"Unique labels:     {df['label'].nunique()}")
+print(f"Columns match measured: {list(df.columns) == measured_columns}")
 
 if remaining_nan == 0:
     print("✔ No missing values remain in feature columns")
@@ -176,3 +212,13 @@ else:
     print("⚠ Warning: Some missing values still remain")
 
 print("\n🚀 Synthetic preprocessing complete.")
+
+print("\nFILES BEING LOADED:")
+for f in files:
+    print(f)
+
+print(df["mineral_name"].value_counts().head(20))
+print("Unique classes:", df["mineral_name"].nunique())
+
+print(df["mineral_name"].unique()[:50])
+print(len(files))
